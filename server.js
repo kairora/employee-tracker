@@ -17,5 +17,5 @@ var connection = mysql.createConnection({
   
   connection.connect(function(err) {
     if (err) throw err;
-    console.log("connected to employee_db!")
+    console.log("You are connected to employee_db!")
   });
