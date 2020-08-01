@@ -18,6 +18,7 @@ var connection = mysql.createConnection({
   connection.connect(function(err) {
     if (err) throw err;
     console.log("You are connected to employee_db!")
+    startPrompts()
   });
 
   function startPrompts() {
@@ -40,9 +41,42 @@ var connection = mysql.createConnection({
           "Remove a role",
           "Remove a department",
           "Update an employee role",
-          "Update an employee manager"
-                   
+          "Update an employee manager",
+          "exit"        
         ]
       })
-      
+      .then(function(answer) {
+        switch (answer.action) {
+        case "View all employees":
+          showAll();
+          break;
+  
+        // case "Find all artists who appear more than once":
+        //   multiSearch();
+        //   break;
+  
+        // case "Find data within a specific range":
+        //   rangeSearch();
+        //   break;
+  
+        // case "Search for a specific song":
+        //   songSearch();
+        //   break;
+  
+        case "exit":
+          connection.end();
+          break;
+        }
+      });
   }
+  
+  function showAll() {
+    console.log("Searching for all employees...")
+    connection.query("SELECT * FROM employee", function(err, results) {
+      if (err) throw err;
+      console.table(results)
+      startPrompts();
+  });
+  }
+
+  
