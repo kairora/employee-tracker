@@ -52,16 +52,16 @@ var connection = mysql.createConnection({
           break;
   
         // case "View employees by department":
-          // deptSearch();
+          // empByDept();
           // break;
   
         case "View all roles":
           allRoles();
           break;
   
-        // case "Search for a specific song":
-        //   songSearch();
-        //   break;
+        case "View all departments":
+          allDepts();
+          break;
   
         case "exit":
           connection.end();
@@ -82,6 +82,15 @@ var connection = mysql.createConnection({
   function allRoles() {
     console.log("Grabbing all the roles...")
     connection.query('SELECT id AS "ID", title AS "Title", salary AS "Salary" FROM role', function(err, results) {
+      if (err) throw err;
+      console.table(results)
+      startPrompts();
+  });
+  }
+
+  function allDepts() {
+    console.log("Displaying all the departments...")
+    connection.query('SELECT * FROM department', function(err, results) {
       if (err) throw err;
       console.table(results)
       startPrompts();
