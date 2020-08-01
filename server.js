@@ -19,3 +19,26 @@ var connection = mysql.createConnection({
     if (err) throw err;
     console.log("You are connected to employee_db!")
   });
+
+  function startPrompts() {
+    inquirer
+      .prompt({
+        name: "action",
+        type: "list",
+        message: "What would you like to do?",
+        choices: [
+          "View all employees",
+          "View all employees by department",
+          "View all employees by manager",
+          "View all roles",
+          "Add an employee",
+          "Add a department",
+          "Add a role",
+          "Remove an employee",
+          "Update an employee role",
+          "Update an employee manager"
+                   
+        ]
+      })
+      
+  }
