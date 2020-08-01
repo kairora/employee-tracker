@@ -9,4 +9,11 @@ CREATE TABLE department (
     name VARCHAR(30)
 );
 
+CREATE TABLE role (
+	id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	title VARCHAR(30),
+	salary DECIMAL UNSIGNED,
+	department_id INT UNSIGNED NOT NULL,
+    CONSTRAINT fk_dept_id FOREIGN KEY (department_id) REFERENCES department(id)
+);
 
