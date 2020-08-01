@@ -51,13 +51,13 @@ var connection = mysql.createConnection({
           showAll();
           break;
   
-        // case "Find all artists who appear more than once":
-        //   multiSearch();
-        //   break;
+        // case "View employees by department":
+          // deptSearch();
+          // break;
   
-        // case "Find data within a specific range":
-        //   rangeSearch();
-        //   break;
+        case "View all roles":
+          allRoles();
+          break;
   
         // case "Search for a specific song":
         //   songSearch();
@@ -78,5 +78,35 @@ var connection = mysql.createConnection({
       startPrompts();
   });
   }
+
+  function allRoles() {
+    console.log("Grabbing all the roles...")
+    connection.query('SELECT id AS "ID", title AS "Title", salary AS "Salary" FROM role', function(err, results) {
+      if (err) throw err;
+      console.table(results)
+      startPrompts();
+  });
+  }
+
+  // function deptSearch() {
+  //   console.log("Seaching for employee by department...")
+  //   inquirer.prompt([
+  //       { 
+  //       message: "What department are you looking for?",
+  //       name: "artist",
+  //       }
+  //   ]).then(answer => {
+  //       connection.query(
+  //           'SELECT position, artist, song, year FROM top5000  WHERE ?', 
+  //       {
+  //           artist: answer.artist
+  //       }, 
+  //       (err, results) => {
+  //           if(err) throw err
+  //           console.table(results)
+  //           initialPrompts()
+  //       })
+  //   })
+  // }
 
   
