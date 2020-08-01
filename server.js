@@ -28,13 +28,17 @@ var connection = mysql.createConnection({
         message: "What would you like to do?",
         choices: [
           "View all employees",
-          "View all employees by department",
-          "View all employees by manager",
+          "View employees by department",
+          "View employees by manager",
           "View all roles",
+          "View all departments",
+          "View total budget by department",
           "Add an employee",
           "Add a department",
           "Add a role",
           "Remove an employee",
+          "Remove a role",
+          "Remove a department",
           "Update an employee role",
           "Update an employee manager"
                    
