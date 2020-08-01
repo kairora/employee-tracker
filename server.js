@@ -147,7 +147,15 @@ var connection = mysql.createConnection({
   });
   }
 
-
+  function allDepts() {
+    console.log("Displaying all the departments...")
+    connection.query('SELECT id, name Department FROM department', function(err, results) {
+      if (err) throw err;
+      const table = cTable.getTable(results)
+      console.log(table);
+      startPrompts();
+  });
+  }
 
 
   // ADD
