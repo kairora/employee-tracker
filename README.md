@@ -51,7 +51,7 @@ This app was partially peer-programmed by [Brianna Bullock](https://www.github.c
 ---
 
 ## Future Development
-The app will be able to view employees by department and manager, view a total budget by department, remove roles and departments, and update employee roles and managers.
+The app will be able to view employees by department and manager, view a total budget by department, remove roles, and update employee roles and managers.
 
 ## Questions
 
