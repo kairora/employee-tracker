@@ -18,7 +18,8 @@ This app enables a user to keep track of their employee roster. Inside the app, 
 2. [Usage](#Usage)
 3. [License](#license)
 4. [Contributing](#Contributing)
-5. [Questions](#Questions)
+5. [Future Development](#Future-Development)
+6. [Questions](#Questions)
 ---
 
 ## Installation
@@ -48,6 +49,9 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 This app was partially peer-programmed by [Brianna Bullock](https://www.github.com/kairora) and [Ben De Garcia](https://github.com/bdegarcia).  If other developers wish to contribute, please email Brianna at the email below.
 
 ---
+
+## Future Development
+The app will be able to view employees by department and manager, view a total budget by department, remove roles and departments, update employee roles and managers, and validate the input that is given from the user.
 
 ## Questions
 
