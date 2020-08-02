@@ -43,7 +43,7 @@ var connection = mysql.createConnection({
           "Add a role",
           "Remove an employee",
           // "Remove a role",
-          // "Remove a department",
+          "Remove a department",
           // "Update an employee role",
           // "Update an employee manager",
           "Exit"        
@@ -96,9 +96,9 @@ var connection = mysql.createConnection({
           // empByDept();
           // break;
 
-        // case "Remove a department":
-        //   deleteDept();
-        //   break;
+        case "Remove a department":
+          removeDept();
+          break;
 
         // case "Update an employee role":
           // empByDept();
@@ -117,19 +117,6 @@ var connection = mysql.createConnection({
   }
 
 
-  // VIEW ALL
-  // function allEmployees() {
-  //   console.log("Searching for all employees...")
-  //   connection.query(`SELECT employee.id, employee.first_name First_Name, employee.last_name Last_Name, title Role, Salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee 
-  //   LEFT JOIN role ON employee.role_id = role.id
-  //   LEFT JOIN department ON role.department_id = department.id
-  //   LEFT JOIN employee e ON employee.manager_id = e.id;`, function(err, results) {
-  //     if (err) throw err;
-  //     const table = cTable.getTable(results)
-  //     console.log(table);
-  //     startPrompts();
-  // });
-  // }
   // Peer programmed with Ben De Garcia - To simplify mysql query into one function to be used in multiple places
   function grabEmployees(cb){
     connection.query(
@@ -141,6 +128,16 @@ var connection = mysql.createConnection({
       if (err) throw err;
       cb(data)
   })}
+
+  function grabDepts(cb){
+    connection.query(
+    `SELECT * FROM department`,
+    (err, data) => {
+      if (err) throw err;
+      cb(data)
+  })}
+
+   // VIEW ALL
   // Peer programmed with Ben De Garcia
   function allEmployees() {
     grabEmployees((data) => {
@@ -362,6 +359,39 @@ function removeEmployee() {
           (err, data) => {
             if (err) throw err;
             console.log(`Employee removed.`);
+            startPrompts();
+          }
+        );
+      });
+  })
+}
+
+
+function removeDept() {
+  grabDepts(function(data){
+    let deptList = [];
+    data.forEach((item) => {
+      deptList.push(
+        `${item.name} ${item.id}`
+      );
+    });
+    inquirer
+      .prompt([
+        {
+          name: "depts",
+          type: "list",
+          message: "Which department will you delete?",
+          choices: deptList,
+        },
+      ])
+      .then((answer) => {
+        let deletedID = answer.depts.split(" ").pop();
+        connection.query(
+          "DELETE FROM department WHERE id = ?",
+          deletedID,
+          (err, data) => {
+            if (err) throw err;
+            console.log(`Department removed.`);
             startPrompts();
           }
         );
