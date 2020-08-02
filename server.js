@@ -81,9 +81,9 @@ var connection = mysql.createConnection({
           addDept();
           break;
 
-        // case "Add a role":
-          // empByDept();
-          // break;
+        case "Add a role":
+          addRole();
+          break;
 
         // case "Remove an employee":
           // empByDept();
@@ -108,6 +108,7 @@ var connection = mysql.createConnection({
   
         case "exit":
           connection.end();
+          process.exit();
           break;
         }
       });
@@ -159,6 +160,76 @@ var connection = mysql.createConnection({
 
 
   // ADD
+  function addEmployee() {
+    connection.query(
+      `SELECT r.title Title, d.name Department,r.id RoleID
+           FROM role r
+           LEFT JOIN department d ON (d.id = r.dept_id)
+           ORDER BY r.title, d.name`,
+      (err, data) => {
+        let roles = [];
+        if (err) throw err;
+        data.forEach((items) => {
+          roles.push(`${items.Title} ${items.Department} ${items.RoleID}`);
+        });
+        connection.query(
+          `SELECT e.first_name FirstName, e.last_name LastName, d.name Department, r.title Title, e.id EmployeeID, concat(m.first_name, " ", m.last_name) Manager
+                 FROM employee e
+                 LEFT JOIN role r ON (e.role_id = r.id)
+                 LEFT JOIN department d ON (r.dept_id = d.id)
+                 LEFT JOIN employee m ON (e.manager_id = m.id)
+                 ORDER BY e.first_name, e.last_name, d.name, r.title`,
+          (err, data) => {
+            console.log(data);
+            let managers = [];
+            if (err) throw err;
+            data.forEach((item) => {
+              managers.push(
+                `${item.FirstName} ${item.LastName} ${item.EmployeeID}`
+              );
+            });
+            inquirer
+              .prompt([
+                {
+                  name: "first_name",
+                  type: "input",
+                  message: "Enter first name",
+                },
+                {
+                  name: "last_name",
+                  type: "input",
+                  message: "Enter last name",
+                },
+                {
+                  name: "role_id",
+                  type: "list",
+                  message: "Choose role",
+                  choices: roles,
+                },
+                {
+                  name: "manager_id",
+                  type: "list",
+                  message: "Choose manager",
+                  choices: managers,
+                },
+              ])
+              .then((answers) => {
+                let role_id = parseInt(answers.role_id.split(" ").pop());
+                let manager_id = parseInt(answers.manager_id.split(" ").pop());
+                connection.query(
+                  "INSERT INTO employee (first_name, last_name, role_id, manager_id) values (?, ?, ?, ?)",
+                  [answers.first_name, answers.last_name, role_id, manager_id],
+                  (err) => {
+                    if (err) throw err;
+                    mainMenu();
+                  }
+                );
+              });
+          }
+        );
+      }
+    );
+  }
   // function addEmployee() {
   //   inquirer
   //   .prompt([
@@ -211,13 +282,66 @@ var connection = mysql.createConnection({
   // }
 
 
+// Worked with Ben De Garcia
+function viewEmployees() {
+  getEmployees((data) => {
+      console.table(data)
+mainMenu();
+  })
+}
+
+function removeEmployee() {
+  getEmployees(function(data){
+    let employeeList = [];
+    console.log(data)
+    data.forEach((item) => {
+      employeeList.push(
+        `${item.first_name} ${item.last_name}, Employee# ${item.id}`
+      );
+    });
+    inquirer
+      .prompt([
+        {
+          name: "employee",
+          type: "list",
+          message: "Who is no longer on the crew?",
+          choices: employeeList,
+        },
+      ])
+      .then((answer) => {
+        let firedEmpID = answer.employee.split(" ").pop();
+        connection.query(
+          "DELETE FROM employee WHERE id = ?",
+          firedEmpID,
+          (err, data) => {
+            if (err) throw err;
+            console.log(`Employee removed.`);
+          }
+        );
+      });
+  })
+mainMenu();
+}
+
+
+function getEmployees(cb){
+  connection.query(
+  `SELECT employee.id, employee.first_name, employee.last_name, title Role, salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee
+      LEFT JOIN role ON employee.role_id = role.id
+      LEFT JOIN department ON role.dept_id = department.id
+      LEFT JOIN employee e ON employee.manager_id = e.id`,
+  (err, data) => {
+    if (err) throw err;
+    cb(data)
+})}
+
   function addDept() {
     inquirer
     .prompt([
       {
         name: "dept_name",
         type: "input",
-        message: "What department would you like to add? "
+        message: "What department would you like to add?"
       },
     ])
     .then(answer => {
@@ -230,6 +354,62 @@ var connection = mysql.createConnection({
       startPrompts();
     })
   }
+
+  function addRole() {
+    connection.query('SELECT * FROM department', function(err, results) {
+        if (err) throw err;
+        let depArr = [];
+        results.forEach((result) => {
+          depArr.push(`${result.id} - ${result.name}`)
+        })
+      // }) 
+    inquirer
+    .prompt([
+      {
+        name: "title",
+        type: "input",
+        message: "What role would you like to add?"
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "What is the salary for this role?"
+      },
+      {
+        name: "dept_choice",
+        type: "list",
+        message: "Choose an existing department",
+        choices: depArr
+      },
+    ])
+    .then(function(answer) {
+      switch (answer.dept_choice) {
+      case "Add new department":
+        addDept()
+        // connection.query('INSERT INTO role (title, salary, department_id) VALUES ? ? ?', answers.dept_name,  function(err, results) {
+        //   if (err) throw err;
+        //   const table = cTable.getTable(allDepts(results))
+        //   console.log(table);
+        //   console.log(`${answers.title} added to the list of roles.`)
+        // }) 
+        // startPrompts();
+        break;
+
+      case "Choose an existing department":
+        allDepts()
+        break;
+      }})
+    // .then(answers => {
+    //   connection.query('INSERT INTO role (title, salary, department_id) VALUES ? ? ?', answers.dept_name,  function(err, results) {
+    //     if (err) throw err;
+    //     const table = cTable.getTable(allDepts(results))
+    //     console.log(table);
+    //     console.log(`${answers.title} added to the list of roles.`)
+    //   }) 
+    //   startPrompts();
+    // })
+  })
+}
 
   // function empByDept() {
   //   onsole.log("Displaying all the departments...")
