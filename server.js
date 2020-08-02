@@ -118,18 +118,18 @@ var connection = mysql.createConnection({
 
 
   // VIEW ALL
-  function allEmployees() {
-    console.log("Searching for all employees...")
-    connection.query(`SELECT employee.id, employee.first_name First_Name, employee.last_name Last_Name, title Role, Salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee 
-    LEFT JOIN role ON employee.role_id = role.id
-    LEFT JOIN department ON role.department_id = department.id
-    LEFT JOIN employee e ON employee.manager_id = e.id;`, function(err, results) {
-      if (err) throw err;
-      const table = cTable.getTable(results)
-      console.log(table);
-      startPrompts();
-  });
-  }
+  // function allEmployees() {
+  //   console.log("Searching for all employees...")
+  //   connection.query(`SELECT employee.id, employee.first_name First_Name, employee.last_name Last_Name, title Role, Salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee 
+  //   LEFT JOIN role ON employee.role_id = role.id
+  //   LEFT JOIN department ON role.department_id = department.id
+  //   LEFT JOIN employee e ON employee.manager_id = e.id;`, function(err, results) {
+  //     if (err) throw err;
+  //     const table = cTable.getTable(results)
+  //     console.log(table);
+  //     startPrompts();
+  // });
+  // }
   // Peer programmed with Ben De Garcia - To simplify mysql query into one function to be used in multiple places
   function grabEmployees(cb){
     connection.query(
@@ -189,7 +189,9 @@ var connection = mysql.createConnection({
                  LEFT JOIN employee m ON (e.manager_id = m.id)
                  ORDER BY e.first_name, e.last_name, d.name, r.title`,
           (err, data) => {
-            console.log(data);
+            // console.log(data);
+            const table = cTable.getTable(data);
+            console.log(table);
             let managers = [];
             if (err) throw err;
             data.forEach((item) => {
@@ -230,6 +232,7 @@ var connection = mysql.createConnection({
                   [answers.first_name, answers.last_name, role_id, manager_id],
                   (err) => {
                     if (err) throw err;
+                    console.log("Employee was added!")
                     startPrompts();
                   }
                 );
