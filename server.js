@@ -294,12 +294,27 @@ var connection = mysql.createConnection({
       {
         name: "title",
         type: "input",
-        message: "What role would you like to add?"
+        message: "What role would you like to add?",
+        validate: input => {
+          if(input !== "") {
+              return true;
+          } else {
+              return "Please input role title."
+          }
+      }
       },
       {
         name: "salary",
         type: "input",
-        message: "What is the salary for this role?"
+        message: "What is the salary for this role?",
+        validate: input => {
+          const valID = input.match(/^\d+(?:\.\d{0,2})?$/);
+          if(valID) {
+              return true;
+          } else {
+              return "Please input positive numerical characters up to two decimals only."
+          }
+        }
       },
       {
         name: "dept_choice",
