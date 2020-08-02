@@ -6,7 +6,7 @@
 This app enables a user to keep track of their employee roster. Inside the app, the user can answer prompts in the terminal to view, add, or delete employees, departments, and roles within their business.
 
 
-[VIEW A DEMONSTRATION OF THE DEPLOYED APP HERE.](https://img.com) 
+[VIEW A DEMONSTRATION OF THE DEPLOYED APP HERE.](https://youtu.be/W9BG2phrewE) 
 
 
 ![Employee Tracker Image](./assets/app-image.PNG)
