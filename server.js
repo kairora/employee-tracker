@@ -2,6 +2,7 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 const cTable = require('console.table');
 
+// CONNECTION
 var connection = mysql.createConnection({
     host: "localhost",
   
@@ -15,14 +16,14 @@ var connection = mysql.createConnection({
     password: "root",
     database: "employee_db"
   });
-  
   connection.connect(function(err) {
     if (err) throw err;
     console.log("You are connected to employee_db!")
     startPrompts()
   });
 
-
+  
+  // INITIAL PROMPTS
   // prompts with switch cases to initialize each case function commented cases/functions are for future development
   function startPrompts() {
     inquirer
@@ -114,11 +115,9 @@ var connection = mysql.createConnection({
         }
       });
   }
-  
 
 
-
-  // View All functions
+  // VIEW ALL
   function allEmployees() {
     console.log("Searching for all employees...")
     connection.query(`SELECT employee.id, employee.first_name First_Name, employee.last_name Last_Name, title Role, Salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee 
@@ -131,8 +130,7 @@ var connection = mysql.createConnection({
       startPrompts();
   });
   }
-
-  // Worked with Ben De Garcia on the 
+  // Peer programmed with Ben De Garcia - To simplify mysql query into one function to be used in multiple places
   function grabEmployees(cb){
     connection.query(
     `SELECT employee.id, employee.first_name, employee.last_name, title Role, salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee
@@ -143,15 +141,13 @@ var connection = mysql.createConnection({
       if (err) throw err;
       cb(data)
   })}
-
-  // Worked with Ben De Garcia
+  // Peer programmed with Ben De Garcia
   function allEmployees() {
     grabEmployees((data) => {
       console.table(data)
       startPrompts();
     })
   }
-
   function allRoles() {
     console.log("Grabbing all the roles...")
     connection.query('SELECT id AS "ID", title AS "Title", salary AS "Salary" FROM role', function(err, results) {
@@ -161,7 +157,6 @@ var connection = mysql.createConnection({
       startPrompts();
   });
   }
-
   function allDepts() {
     console.log("Displaying all the departments...")
     connection.query('SELECT id, name Department FROM department', function(err, results) {
@@ -245,42 +240,6 @@ var connection = mysql.createConnection({
     );
   }
   
-// function peer programmed on with Ben De Garcia
-function removeEmployee() {
-  grabEmployees(function(data){
-    let employeeList = [];
-    data.forEach((item) => {
-      employeeList.push(
-        `${item.first_name} ${item.last_name}, Employee# ${item.id}`
-      );
-    });
-    inquirer
-      .prompt([
-        {
-          name: "employee",
-          type: "list",
-          message: "Who is no longer on the crew?",
-          choices: employeeList,
-        },
-      ])
-      .then((answer) => {
-        let firedEmpID = answer.employee.split(" ").pop();
-        connection.query(
-          "DELETE FROM employee WHERE id = ?",
-          firedEmpID,
-          (err, data) => {
-            if (err) throw err;
-            console.log(`Employee removed.`);
-            startPrompts();
-          }
-        );
-      });
-  })
-}
-
-
-
-
   function addDept() {
     inquirer
     .prompt([
@@ -336,4 +295,38 @@ function removeEmployee() {
   })
 }
 
+
+// REMOVE
+// function peer programmed on with Ben De Garcia
+function removeEmployee() {
+  grabEmployees(function(data){
+    let employeeList = [];
+    data.forEach((item) => {
+      employeeList.push(
+        `${item.first_name} ${item.last_name}, Employee# ${item.id}`
+      );
+    });
+    inquirer
+      .prompt([
+        {
+          name: "employee",
+          type: "list",
+          message: "Who is no longer on the crew?",
+          choices: employeeList,
+        },
+      ])
+      .then((answer) => {
+        let firedEmpID = answer.employee.split(" ").pop();
+        connection.query(
+          "DELETE FROM employee WHERE id = ?",
+          firedEmpID,
+          (err, data) => {
+            if (err) throw err;
+            console.log(`Employee removed.`);
+            startPrompts();
+          }
+        );
+      });
+  })
+}
   
