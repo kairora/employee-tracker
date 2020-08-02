@@ -205,11 +205,25 @@ var connection = mysql.createConnection({
                   name: "first_name",
                   type: "input",
                   message: "Enter first name",
+                  validate: input => {
+                    if(input !== "") {
+                        return true;
+                    } else {
+                        return "Please input the employee's first name."
+                    }
+                }
                 },
                 {
                   name: "last_name",
                   type: "input",
                   message: "Enter last name",
+                  validate: input => {
+                    if(input !== "") {
+                        return true;
+                    } else {
+                        return "Please input the employee's last name."
+                    }
+                }
                 },
                 {
                   name: "role_id",
@@ -249,7 +263,14 @@ var connection = mysql.createConnection({
       {
         name: "dept_name",
         type: "input",
-        message: "What department would you like to add?"
+        message: "What department would you like to add?",
+        validate: input => {
+          if(input !== "") {
+              return true;
+          } else {
+              return "Please add the name of the department."
+          }
+      }
       },
     ])
     .then(answer => {
