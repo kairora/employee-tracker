@@ -22,6 +22,8 @@ var connection = mysql.createConnection({
     startPrompts()
   });
 
+
+  // prompts with switch cases to initialize each case function commented cases/functions are for future development
   function startPrompts() {
     inquirer
       .prompt({
@@ -30,19 +32,19 @@ var connection = mysql.createConnection({
         message: "What would you like to do?",
         choices: [
           "View all employees",
-          "View employees by department",
-          "View employees by manager",
+          // "View employees by department",
+          // "View employees by manager",
           "View all roles",
           "View all departments",
-          "View total budget by department",
+          // "View total budget by department",
           "Add an employee",
           "Add a department",
           "Add a role",
           "Remove an employee",
-          "Remove a role",
-          "Remove a department",
-          "Update an employee role",
-          "Update an employee manager",
+          // "Remove a role",
+          // "Remove a department",
+          // "Update an employee role",
+          // "Update an employee manager",
           "Exit"        
         ]
       })
@@ -54,7 +56,6 @@ var connection = mysql.createConnection({
   
         // case "View employees by department":
           // empByDept();
-
           // break;
 
         // case "View employees by manager":
@@ -62,6 +63,7 @@ var connection = mysql.createConnection({
           // break;
   
         case "View all roles":
+          
           allRoles();
           break;
   
@@ -85,17 +87,17 @@ var connection = mysql.createConnection({
           addRole();
           break;
 
-        // case "Remove an employee":
-          // empByDept();
-          // break;
+        case "Remove an employee":
+          removeEmployee();
+          break;
 
         // case "Remove a role":
           // empByDept();
           // break;
 
-        case "Remove a department":
-          deleteDept();
-          break;
+        // case "Remove a department":
+        //   deleteDept();
+        //   break;
 
         // case "Update an employee role":
           // empByDept();
@@ -107,24 +109,16 @@ var connection = mysql.createConnection({
         
   
         case "exit":
-          connection.end();
+          connection.end()
           process.exit();
-          break;
         }
       });
   }
   
-  // get by ID
-  function roleID(answer) {
-    
-    connection.query('SELECT id FROM role WHERE title = ?', answer.title, function(err, result) {
-      if (err) throw err;
-      return result
-  });
-  }
 
 
-  // View All
+
+  // View All functions
   function allEmployees() {
     console.log("Searching for all employees...")
     connection.query(`SELECT employee.id, employee.first_name First_Name, employee.last_name Last_Name, title Role, Salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee 
@@ -136,6 +130,26 @@ var connection = mysql.createConnection({
       console.log(table);
       startPrompts();
   });
+  }
+
+  // Worked with Ben De Garcia on the 
+  function grabEmployees(cb){
+    connection.query(
+    `SELECT employee.id, employee.first_name, employee.last_name, title Role, salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee
+        LEFT JOIN role ON employee.role_id = role.id
+        LEFT JOIN department ON role.department_id = department.id
+        LEFT JOIN employee e ON employee.manager_id = e.id`,
+    (err, data) => {
+      if (err) throw err;
+      cb(data)
+  })}
+
+  // Worked with Ben De Garcia
+  function allEmployees() {
+    grabEmployees((data) => {
+      console.table(data)
+      startPrompts();
+    })
   }
 
   function allRoles() {
@@ -164,7 +178,7 @@ var connection = mysql.createConnection({
     connection.query(
       `SELECT r.title Title, d.name Department,r.id RoleID
            FROM role r
-           LEFT JOIN department d ON (d.id = r.dept_id)
+           LEFT JOIN department d ON (d.id = r.department_id)
            ORDER BY r.title, d.name`,
       (err, data) => {
         let roles = [];
@@ -176,7 +190,7 @@ var connection = mysql.createConnection({
           `SELECT e.first_name FirstName, e.last_name LastName, d.name Department, r.title Title, e.id EmployeeID, concat(m.first_name, " ", m.last_name) Manager
                  FROM employee e
                  LEFT JOIN role r ON (e.role_id = r.id)
-                 LEFT JOIN department d ON (r.dept_id = d.id)
+                 LEFT JOIN department d ON (r.department_id = d.id)
                  LEFT JOIN employee m ON (e.manager_id = m.id)
                  ORDER BY e.first_name, e.last_name, d.name, r.title`,
           (err, data) => {
@@ -221,7 +235,7 @@ var connection = mysql.createConnection({
                   [answers.first_name, answers.last_name, role_id, manager_id],
                   (err) => {
                     if (err) throw err;
-                    mainMenu();
+                    startPrompts();
                   }
                 );
               });
@@ -230,70 +244,11 @@ var connection = mysql.createConnection({
       }
     );
   }
-  // function addEmployee() {
-  //   inquirer
-  //   .prompt([
-  //     {
-  //       name: "first_name",
-  //       type: "input",
-  //       message: "What is the employee's first name? ",
-  //       validate: function(value) {
-  //         if(input !== "") {
-  //           return true;
-  //         } else {
-  //           return "Please input the employee's first name."
-  //         }
-  //       }
-  //     },
-  //     {
-  //       name: "last_name",
-  //       type: "input",
-  //       message: "What is the employee's last name? ",
-  //       validate: function(value) {
-  //         if(input !== "") {
-  //           return true;
-  //         } else {
-  //           return "Please input the employee's last name."
-  //         }
-  //       }
-  //     },
-  //     {
-  //       name: "role",
-  //       type: "input",
-  //       message: "What is the employee's role? ",
-  //       validate: function(value) {
-  //         if(input !== "") {
-  //           return true;
-  //         } else {
-  //           return "Please input the employee's last name."
-  //         }
-  //       }
-  //     },
-  //   ])
-  //   .then(answers => {
-  //     let newRoleID = roleID();
-  //     connection.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ? ? ? ?', answers.first_name, answers.last_name, newRoleID,  function(err, results) {
-  //       if (err) throw err;
-  //       const table = cTable.getTable(allDepts(results)
-  //       console.log(table);
-  //       startPrompts();
-  //     }) 
-  //   })
-  // }
-
-
-// Worked with Ben De Garcia
-function viewEmployees() {
-  getEmployees((data) => {
-      console.table(data)
-mainMenu();
-  })
-}
-
+  
+// function peer programmed on with Ben De Garcia
 function removeEmployee() {
-  getEmployees(function(data){
+  grabEmployees(function(data){
     let employeeList = [];
-    console.log(data)
     data.forEach((item) => {
       employeeList.push(
         `${item.first_name} ${item.last_name}, Employee# ${item.id}`
@@ -316,24 +271,15 @@ function removeEmployee() {
           (err, data) => {
             if (err) throw err;
             console.log(`Employee removed.`);
+            startPrompts();
           }
         );
       });
   })
-mainMenu();
 }
 
 
-function getEmployees(cb){
-  connection.query(
-  `SELECT employee.id, employee.first_name, employee.last_name, title Role, salary, department.name Department, CONCAT_WS(' ', e.first_name,  e.last_name) Manager FROM employee
-      LEFT JOIN role ON employee.role_id = role.id
-      LEFT JOIN department ON role.dept_id = department.id
-      LEFT JOIN employee e ON employee.manager_id = e.id`,
-  (err, data) => {
-    if (err) throw err;
-    cb(data)
-})}
+
 
   function addDept() {
     inquirer
@@ -347,9 +293,7 @@ function getEmployees(cb){
     .then(answer => {
       connection.query('INSERT INTO department (name) VALUES (?)', answer.dept_name,  function(err, results) {
         if (err) throw err;
-        console.log(answer.dept_name)
-        const table = cTable.getTable(allDepts(results))
-        console.log(table);
+        console.log(`${answer.dept_name} was added the to list of departments.`)
       }) 
       startPrompts();
     })
@@ -360,9 +304,8 @@ function getEmployees(cb){
         if (err) throw err;
         let depArr = [];
         results.forEach((result) => {
-          depArr.push(`${result.id} - ${result.name}`)
+          depArr.push(`${result.name} - ${result.id}`)
         })
-      // }) 
     inquirer
     .prompt([
       {
@@ -382,64 +325,15 @@ function getEmployees(cb){
         choices: depArr
       },
     ])
-    .then(function(answer) {
-      switch (answer.dept_choice) {
-      case "Add new department":
-        addDept()
-        // connection.query('INSERT INTO role (title, salary, department_id) VALUES ? ? ?', answers.dept_name,  function(err, results) {
-        //   if (err) throw err;
-        //   const table = cTable.getTable(allDepts(results))
-        //   console.log(table);
-        //   console.log(`${answers.title} added to the list of roles.`)
-        // }) 
-        // startPrompts();
-        break;
-
-      case "Choose an existing department":
-        allDepts()
-        break;
-      }})
-    // .then(answers => {
-    //   connection.query('INSERT INTO role (title, salary, department_id) VALUES ? ? ?', answers.dept_name,  function(err, results) {
-    //     if (err) throw err;
-    //     const table = cTable.getTable(allDepts(results))
-    //     console.log(table);
-    //     console.log(`${answers.title} added to the list of roles.`)
-    //   }) 
-    //   startPrompts();
-    // })
+    .then(answers => {
+      let deptID = parseInt(answers.dept_choice.split('-').pop());
+      connection.query('INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)', [answers.title, answers.salary, deptID], function(err, results) {
+        if (err) throw err;
+        console.log(`${answers.title} added to the list of roles.`)
+      }) 
+      startPrompts();
+    })
   })
 }
-
-  // function empByDept() {
-  //   onsole.log("Displaying all the departments...")
-  //   connection.query('SELECT * FROM department', function(err, results) {
-  //     if (err) throw err;
-  //     const table = cTable.getTable(results)
-      // console.log(table);
-  //     startPrompts();
-  // }
-
-  // function deptSearch() {
-  //   console.log("Seaching for employee by department...")
-  //   inquirer.prompt([
-  //       { 
-  //       message: "What department are you looking for?",
-  //       name: "artist",
-  //       }
-  //   ]).then(answer => {
-  //       connection.query(
-  //           'SELECT position, artist, song, year FROM top5000  WHERE ?', 
-  //       {
-  //           artist: answer.artist
-  //       }, 
-  //       (err, results) => {
-  //           if(err) throw err
-  //           const table = cTable.getTable(results)
-      // console.log(table);
-  //           initialPrompts()
-  //       })
-  //   })
-  // }
 
   
